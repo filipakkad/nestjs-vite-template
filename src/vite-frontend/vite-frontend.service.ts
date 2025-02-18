@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { createServer, ViteDevServer } from 'vite';
 import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { NextFunction, Request, Response } from 'express';
 
 @Injectable()
 export class ViteFrontendService {
@@ -17,7 +18,12 @@ export class ViteFrontendService {
     await this.viteReady; // Ensure Vite is ready before returning
     this.app = app;
     if (this.viteServer) {
-      this.app.use(this.viteServer.middlewares);
+      this.app.use((req: Request, res: Response, next: NextFunction) => {
+        if (req.originalUrl.startsWith('/api')) {
+          return next();
+        }
+        this.viteServer?.middlewares(req, res, next);
+      });
     }
   }
 

@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
-import { AppService } from './app.service';
 import { ViteFrontendModule } from './vite-frontend/vite-frontend.module';
+import { ApiModule } from './api/api.module';
 
 @Module({
-  imports: [ViteFrontendModule],
-  providers: [AppService],
+  imports: [ViteFrontendModule, ApiModule],
 })
 export class AppModule {}

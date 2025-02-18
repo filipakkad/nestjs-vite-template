@@ -1,4 +1,4 @@
-import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { ViteDevModeMiddleware } from './vite-dev-mode-middleware.service';
 import { ViteFrontendService } from './vite-frontend.service';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -11,6 +11,8 @@ import { isProduction } from '../helpers';
     ? [
         ServeStaticModule.forRoot({
           rootPath: join(__dirname, 'app', 'dist'),
+          // except api endpoint
+          exclude: ['/api*'],
         }),
       ]
     : [],
@@ -18,7 +20,10 @@ import { isProduction } from '../helpers';
 export class ViteFrontendModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     if (!isProduction()) {
-      consumer.apply(ViteDevModeMiddleware).exclude('/api/(.*)').forRoutes('*');
+      consumer
+        .apply(ViteDevModeMiddleware)
+        .exclude({ path: '/api/(.*)', method: RequestMethod.ALL })
+        .forRoutes('*');
     }
   }
 }
